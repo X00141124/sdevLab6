@@ -1,0 +1,67 @@
+@import play.api.Play.current
+@import models.shopping._
+@import models.products._
+@import models.users._
+@(customer: models.users.Customer, orders: List[ShopOrder])
+<!-- Pass page title and user on to main -->
+@main("View Orders", customer) {
+
+	@if(flash.containsKey("success")) {
+        <div class="alert alert-success">
+          @flash.get("success")
+		</div>
+	}
+
+@for(o<-orders){
+	<label>Order Number: @o.getId</label>
+	<br>
+	<label>Order Date: @o.getDateString</label>
+<div class="row">
+	<div class="col-md-12">
+		
+
+		<table class="table table-bordered table-hover table-condensed">
+			<thead>
+			<!-- The header row-->
+			<tr>
+				<th>Id</th>
+				<th>Name</th>
+                <th>Quantity</th>
+                <th>Price</th>
+				<th>Total</th>
+			</tr>
+			</thead>
+			<tbody>
+                @if(customer.getBasket() != null) {
+                    <!-- Start of For loop - For each p in products add a row -->
+                    @for(i <- o.getItems()) {
+                    <tr>
+                        <td>@i.getProduct.getId</td>
+                        <td>@i.getProduct.getName</td>
+                        <td>@i.getQuantity()</td>
+                        <td>&euro; @("%.2f".format(i.getPrice))</td>
+                        <td>&euro; @("%.2f".format(i.getItemTotal))</td>                        
+                    </tr>
+                    }<!-- End of For loop -->
+              }
+			</tbody>
+		</table>
+        <div class="row">
+            <div class="col-md-12">
+                <p class="text-right"><strong>Order Total: &euro; @("%.2f".format(o.getTotal()))</strong></p>
+            </div>  
+		</div>
+		<div class="form-group">
+				<a href="@routes.ShoppingCtrl.cancelOrder(o.getId)" class="btn btn-primary" onclick="return confirmDel();">Cancel Order</a>
+        </div>
+    </div>
+</div>
+
+<script>
+	// JavaScript function returns true if user clicks yes, otherwise, false
+	function confirmDel() {
+		return confirm('Are you sure?');
+	}
+</script>
+}
+}
